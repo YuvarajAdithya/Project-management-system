@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import api from '../lib/axios';
 import { Task } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -437,7 +437,7 @@ const TasksPage: React.FC = () => {
                                       : 'text-slate-500'
                                   }`}
                                 >
-                                  {isOverdue ? 'Overdue Â· ' : 'Due Â· '}
+                                  {isOverdue ? 'Overdue · ' : 'Due · '}
                                   {formatDate(task.dueDate)}
                                 </span>
                               )}
