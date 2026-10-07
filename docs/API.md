@@ -1,6 +1,6 @@
-# TaskFlow REST API Documentation
+# Tasko REST API Documentation
 
-This document provides complete technical specifications for the TaskFlow backend API, including request/response formats, headers, query parameters, authentication, error handling, and rate limits.
+This document provides complete technical specifications for the Tasko backend API, including request/response formats, headers, query parameters, authentication, error handling, and rate limits.
 
 ---
 
@@ -40,7 +40,7 @@ This document provides complete technical specifications for the TaskFlow backen
 
 ```text
 Local Development:  http://localhost:5000/api
-Production:        [Not deployed yet]
+Production:         https://tasko-api-bnko.onrender.com/api
 ```
 
 All requests must include `Content-Type: application/json` where request bodies are supplied.

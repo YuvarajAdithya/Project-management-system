@@ -1,6 +1,6 @@
-# TaskFlow Database Entity-Relationship (ER) Documentation
+# Tasko Database Entity-Relationship (ER) Documentation
 
-This document describes the relational database schema, data model entities, relationships, constraints, and cascade deletion behaviors for the TaskFlow backend. The database is managed via PostgreSQL and Prisma ORM.
+This document describes the relational database schema, data model entities, relationships, constraints, and cascade deletion behaviors for the Tasko backend. The database is managed via PostgreSQL and Prisma ORM.
 
 ---
 
@@ -136,7 +136,7 @@ project Project @relation(fields: [projectId], references: [id], onDelete: Casca
 
 ## Enumerated Types (Enums)
 
-TaskFlow utilizes PostgreSQL native enums to enforce strict domain validation at the database layer.
+Tasko utilizes PostgreSQL native enums to enforce strict domain validation at the database layer.
 
 ### 1. `ProjectStatus`
 Tracks the lifecycle status of a project:

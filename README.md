@@ -1,93 +1,202 @@
-# TaskFlow
+# Tasko
 
-> A full-stack project and task management application built as a technical assessment for a Full Stack Developer internship. It features a responsive web dashboard, native mobile app, and a shared Express + TypeScript REST API.
+> A full-stack project and task management application with responsive web and mobile clients connected to one shared REST API and PostgreSQL database.
 
----
-
-## Table of Contents
-
-- [Project Overview](#project-overview)
-- [Features](#features)
-- [Architecture](#architecture)
-- [Tech Stack](#tech-stack)
-- [Folder Structure](#folder-structure)
-- [Prerequisites](#prerequisites)
-- [Environment Setup](#environment-setup)
-- [Database Setup](#database-setup)
-- [Backend Setup](#backend-setup)
-- [Web App Setup](#web-app-setup)
-- [Mobile App Setup](#mobile-app-setup)
-- [Deployment](#deployment)
-- [Mobile + Deployed Backend](#mobile--deployed-backend)
-- [Security Implementation](#security-implementation)
-- [API Documentation](#api-documentation)
-- [Demo Credentials](#demo-credentials)
-- [Screenshots](#screenshots)
-- [Deployment URLs](#deployment-urls)
-- [License](#license)
+Tasko was developed as a Full Stack Developer internship technical assessment. It provides authentication, project management, task management, dashboard statistics, filtering, and real-time cross-platform data synchronization between the web and Android applications.
 
 ---
 
-## Project Overview
+## Live Deployment
 
-**TaskFlow** is a modern, production-grade task and project management solution engineered with end-to-end type safety, modular monorepo structure, and clean architecture principles. 
+| Service | URL |
+| --- | --- |
+| Web Application | https://tasko-murex.vercel.app |
+| Backend API | https://tasko-api-bnko.onrender.com |
+| Health Check | https://tasko-api-bnko.onrender.com/health |
+| Android APK / EAS Build | https://expo.dev/accounts/yuvarajadithyareddy/projects/taskflow-mobile/builds/deb86518-2dad-40b0-881c-9cbea0daf7bd |
+| GitHub Repository | https://github.com/YuvarajAdithya/Project-management-system |
 
-Designed for individuals and teams needing efficient project tracking, TaskFlow provides seamless synchronization across desktop and mobile devices via a unified RESTful backend API powered by PostgreSQL.
+> Note: The backend is hosted on Render's free tier, so the first API request after a period of inactivity may take a few seconds while the service wakes up.
 
 ---
 
 ## Features
 
-- **User Authentication & Authorization**: Secure registration and login using JWT (JSON Web Tokens) with password hashing and protected API routes.
-- **Project CRUD with Status Tracking**: Create, read, update, and delete projects with status tags (`NOT_STARTED`, `IN_PROGRESS`, `COMPLETED`) and date ranges.
-- **Task Management**: Granular task creation associated with projects, supporting priority levels (`LOW`, `MEDIUM`, `HIGH`), statuses (`PENDING`, `IN_PROGRESS`, `COMPLETED`), and due dates.
-- **Dashboard with Statistics**: Real-time analytical counters for total projects, active projects, total tasks, pending tasks, and completion metrics.
-- **Search & Filtering**: Search projects and tasks by name, filter by status, priority, or project association.
-- **Responsive Web UI**: Modern, responsive user interface built with React, Vite, and Tailwind CSS.
-- **Native Mobile App**: Cross-platform mobile client built with Expo / React Native and Expo Router, featuring persistent secure storage.
-- **Shared Backend and Database**: Centralized Express + TypeScript backend using Prisma ORM with PostgreSQL.
+### Authentication
+
+- User registration
+- User login
+- Secure logout
+- JWT-based authentication
+- Persistent authenticated sessions
+- Password hashing with bcrypt
+- Protected backend routes
+- Automatic handling of unauthorized or expired sessions
+
+### Project Management
+
+Users can:
+
+- Create projects
+- View projects
+- Edit projects
+- Delete projects
+- Search projects
+- Filter projects by status
+- Set project start and end dates
+
+Supported project statuses:
+
+- `NOT_STARTED`
+- `IN_PROGRESS`
+- `COMPLETED`
+
+### Task Management
+
+Users can:
+
+- Create tasks
+- View tasks
+- Edit tasks
+- Delete tasks
+- Search tasks
+- Filter tasks
+- Move tasks between projects
+- Update task status
+- Update task priority
+- Set task due dates
+
+Supported task statuses:
+
+- `PENDING`
+- `IN_PROGRESS`
+- `COMPLETED`
+
+Supported priorities:
+
+- `LOW`
+- `MEDIUM`
+- `HIGH`
+
+### Dashboard
+
+The dashboard displays:
+
+- Total Projects
+- Projects In Progress
+- Total Tasks
+- Completed Tasks
+- Pending Tasks
+
+### Cross-Platform Synchronization
+
+The web and mobile applications use the same:
+
+- Backend API
+- PostgreSQL database
+- User accounts
+- Projects
+- Tasks
+
+Changes made from one platform become available on the other after refresh or pull-to-refresh.
+
+For example:
+
+1. Create a task from the Android application.
+2. Refresh the deployed web application.
+3. The new task appears on the web.
+4. Update or complete the task from the web.
+5. Pull-to-refresh on Android.
+6. The updated task appears on mobile.
+
+### Mobile Features
+
+The Android application includes:
+
+- Login and registration
+- Dashboard
+- Projects
+- Project details
+- Project create/edit/delete
+- Tasks
+- Task create/edit/delete
+- Task completion
+- Status and priority controls
+- Search and filtering
+- Pull-to-refresh
+- Secure authentication token storage using Expo SecureStore
+- Network error handling
+- Session expiry handling
 
 ---
 
 ## Architecture
 
-TaskFlow is organized as a monorepo consisting of:
-- `server/` — Express + TypeScript + Prisma backend REST API
-- `apps/web/` — React + Vite + Tailwind CSS web application
-- `apps/mobile/` — Expo React Native mobile application
-- `docs/` — API specifications and database documentation
+Tasko follows a monorepo architecture:
 
-### Architecture Diagram
+```text
+taskflow/
+|
+|-- server/          Express + TypeScript REST API
+|   |-- prisma/      Prisma schema and migrations
+|   `-- src/         Controllers, routes, services and middleware
+|
+|-- apps/
+|   |-- web/         React + Vite web application
+|   `-- mobile/      Expo + React Native mobile application
+|
+|-- docs/
+|   |-- API.md
+|   `-- ER-DIAGRAM.md
+|
+`-- README.md
+```
 
+### System Architecture
+
+```text
++--------------------------+
+|                          |
+|     React Web App        |
+|   Vite + TypeScript      |
+|                          |
++------------+-------------+
+             |
+             |
+             | HTTPS / JSON
+             |
+             v
++------------+-------------+
+|                          |
+|     Express REST API     |
+|   Node.js + TypeScript   |
+|                          |
+| JWT / Zod / Helmet       |
+| Authorization / CORS     |
+|                          |
++------------+-------------+
+             |
+             | Prisma ORM
+             |
+             v
++------------+-------------+
+|                          |
+|   Neon PostgreSQL DB     |
+|                          |
++------------+-------------+
+             ^
+             |
+             | HTTPS / JSON
+             |
++------------+-------------+
+|                          |
+|   React Native Mobile    |
+|    Expo + Expo Router    |
+|                          |
++--------------------------+
 ```
-+---------------------------+             +---------------------------+
-|                           |             |                           |
-|   React Web Application   |             |   Expo Mobile App (RN)    |
-|   (Vite + Tailwind CSS)   |             |   (Expo Router + Storage) |
-|                           |             |                           |
-+-------------+-------------+             +-------------+-------------+
-              |                                         |
-              |               HTTP / JSON               |
-              +------------------>   <------------------+
-                                     |
-                                     v
-                      +-----------------------------+
-                      |                             |
-                      |     Express API Server      |
-                      |   (Node.js + TypeScript)    |
-                      |    JWT Auth, Zod, Helmet    |
-                      |                             |
-                      +--------------+--------------+
-                                     |
-                                     | Prisma ORM
-                                     v
-                      +-----------------------------+
-                      |                             |
-                      |     PostgreSQL Database     |
-                      |    (Relational Storage)     |
-                      |                             |
-                      +-----------------------------+
-```
+
+Both clients communicate with the same backend and therefore operate on the same user data.
 
 ---
 
@@ -95,174 +204,115 @@ TaskFlow is organized as a monorepo consisting of:
 
 | Layer | Technology |
 | --- | --- |
-| **Backend Runtime & Framework** | Node.js, Express.js |
-| **Backend Language** | TypeScript |
-| **ORM & Database** | Prisma ORM, PostgreSQL |
-| **Authentication & Security** | JWT (`jsonwebtoken`), `bcrypt`, Zod, Helmet, `cors`, `express-rate-limit` |
-| **Logging & Utility** | Morgan, dotenv, tsx |
-| **Web Frontend** | React 19, Vite, TypeScript |
-| **Web Styling & Routing** | Tailwind CSS, PostCSS, React Router v7 |
-| **Web HTTP Client** | Axios |
-| **Mobile Framework** | React Native, Expo SDK 52 |
-| **Mobile Routing & Storage** | Expo Router v4, `expo-secure-store` |
-| **Mobile Icons & Styling** | `@expo/vector-icons`, StyleSheet / Safe Area Context |
-| **Mobile HTTP Client** | Axios |
+| Web | React, TypeScript, Vite |
+| Web Routing | React Router |
+| Web HTTP Client | Axios |
+| Styling | Tailwind CSS / CSS |
+| Mobile | React Native |
+| Mobile Framework | Expo SDK 52 |
+| Mobile Navigation | Expo Router |
+| Secure Mobile Storage | Expo SecureStore |
+| Backend | Node.js, Express.js |
+| Backend Language | TypeScript |
+| ORM | Prisma |
+| Database | PostgreSQL |
+| Production Database | Neon |
+| Authentication | JWT |
+| Password Security | bcrypt |
+| Validation | Zod |
+| Security Headers | Helmet |
+| Rate Limiting | express-rate-limit |
+| Logging | Morgan |
+| Web Hosting | Vercel |
+| Backend Hosting | Render |
+| Android Build | Expo EAS Build |
 
 ---
 
-## Folder Structure
+## Repository Structure
 
-```
-taskflow/
-├── .gitignore
-├── README.md
-├── docs/
-│   ├── API.md
-│   └── ER-DIAGRAM.md
-├── server/
-│   ├── .env.example
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── prisma/
-│   │   └── schema.prisma
-│   └── src/
-│       ├── app.ts
-│       ├── server.ts
-│       ├── config/
-│       │   ├── database.ts
-│       │   └── index.ts
-│       ├── controllers/
-│       │   ├── auth.controller.ts
-│       │   ├── dashboard.controller.ts
-│       │   ├── project.controller.ts
-│       │   └── task.controller.ts
-│       ├── middleware/
-│       │   ├── auth.middleware.ts
-│       │   ├── error.middleware.ts
-│       │   └── validate.middleware.ts
-│       ├── routes/
-│       │   ├── auth.routes.ts
-│       │   ├── dashboard.routes.ts
-│       │   ├── index.ts
-│       │   ├── project.routes.ts
-│       │   └── task.routes.ts
-│       ├── schemas/
-│       │   ├── auth.schema.ts
-│       │   ├── project.schema.ts
-│       │   └── task.schema.ts
-│       ├── services/
-│       │   ├── auth.service.ts
-│       │   ├── dashboard.service.ts
-│       │   ├── project.service.ts
-│       │   └── task.service.ts
-│       └── utils/
-│           └── jwt.ts
-└── apps/
-    ├── web/
-    │   ├── .env.example
-    │   ├── index.html
-    │   ├── package.json
-    │   ├── postcss.config.js
-    │   ├── tailwind.config.js
-    │   ├── tsconfig.json
-    │   ├── tsconfig.node.json
-    │   ├── vite.config.ts
-    │   └── src/
-    │       ├── App.tsx
-    │       ├── index.css
-    │       ├── main.tsx
-    │       ├── components/
-    │       │   ├── ConfirmDialog.tsx
-    │       │   ├── EmptyState.tsx
-    │       │   ├── Layout.tsx
-    │       │   ├── LoadingSpinner.tsx
-    │       │   ├── ProtectedRoute.tsx
-    │       │   ├── StatusBadge.tsx
-    │       │   └── TaskModal.tsx
-    │       ├── contexts/
-    │       │   └── AuthContext.tsx
-    │       ├── lib/
-    │       │   └── axios.ts
-    │       ├── pages/
-    │       │   ├── CreateProjectPage.tsx
-    │       │   ├── DashboardPage.tsx
-    │       │   ├── EditProjectPage.tsx
-    │       │   ├── LoginPage.tsx
-    │       │   ├── ProjectDetailPage.tsx
-    │       │   ├── ProjectsPage.tsx
-    │       │   ├── RegisterPage.tsx
-    │       │   └── TasksPage.tsx
-    │       └── types/
-    │           └── index.ts
-    └── mobile/
-        ├── .env.example
-        ├── app.json
-        ├── package.json
-        ├── tsconfig.json
-        ├── app/
-        │   ├── _layout.tsx
-        │   ├── (auth)/
-        │   │   ├── _layout.tsx
-        │   │   ├── login.tsx
-        │   │   └── register.tsx
-        │   ├── (tabs)/
-        │   │   ├── _layout.tsx
-        │   │   ├── index.tsx
-        │   │   ├── profile.tsx
-        │   │   ├── projects.tsx
-        │   │   └── tasks.tsx
-        │   └── projects/
-        │       └── [id].tsx
-        └── src/
-            ├── components/
-            │   ├── EmptyState.tsx
-            │   ├── FilterChips.tsx
-            │   ├── LoadingScreen.tsx
-            │   ├── PriorityBadge.tsx
-            │   └── StatusBadge.tsx
-            ├── contexts/
-            │   └── AuthContext.tsx
-            ├── lib/
-            │   └── api.ts
-            └── types/
-                └── index.ts
+```text
+server/
+  prisma/
+    migrations/
+    schema.prisma
+  src/
+    config/
+    controllers/
+    middleware/
+    routes/
+    schemas/
+    services/
+    utils/
+    app.ts
+    server.ts
+
+apps/
+  web/
+    src/
+      components/
+      contexts/
+      lib/
+      pages/
+      types/
+
+  mobile/
+    app/
+      (auth)/
+      (tabs)/
+      projects/
+    src/
+      components/
+      contexts/
+      lib/
+      types/
+
+docs/
+  API.md
+  ER-DIAGRAM.md
 ```
 
 ---
 
 ## Prerequisites
 
-Before starting, ensure you have the following installed on your machine:
+To run Tasko locally, install:
 
-- **Node.js**: version `>= 18.0.0`
-- **npm** (v9+) or **yarn** (v1.22+)
-- **PostgreSQL**: version `>= 14`
-- **Expo CLI**: `npm install -g expo-cli` (or use `npx expo`)
-- **Mobile Emulator / Device**:
-  - Android Studio (for Android Emulator) and/or
-  - Xcode (for iOS Simulator, macOS only) and/or
-  - Expo Go app installed on your physical iOS/Android phone
+- Node.js 18+
+- npm
+- PostgreSQL, or access to a hosted PostgreSQL database
+- Expo Go or an Android emulator for mobile development
 
 ---
 
-## Environment Setup
-
-Clone the repository and set up environment files for each package.
+## Clone the Repository
 
 ```bash
-git clone <repository-url>
-cd taskflow
+git clone https://github.com/YuvarajAdithya/Project-management-system.git
+cd Project-management-system
 ```
 
-### 1. Server Environment (`server/.env`)
-Copy the sample file:
-```bash
-cp server/.env.example server/.env
+---
+
+## Environment Configuration
+
+Real environment files are excluded from Git.
+
+Use the provided `.env.example` files as templates.
+
+### Backend
+
+Create:
+
+```text
+server/.env
 ```
-Configure your values in `server/.env`:
+
+Example:
+
 ```env
-DATABASE_URL=postgresql://postgres:password@localhost:5432/taskflow
-JWT_SECRET=your-super-secret-jwt-key-change-this
+DATABASE_URL=postgresql://username:password@host:5432/database
+JWT_SECRET=replace-with-a-secure-production-secret
 JWT_EXPIRES_IN=7d
 PORT=5000
 CORS_ORIGIN=http://localhost:5173
@@ -270,88 +320,119 @@ NODE_ENV=development
 TRUST_PROXY=false
 ```
 
-### 2. Web App Environment (`apps/web/.env`)
-Copy the sample file:
-```bash
-cp apps/web/.env.example apps/web/.env
+Never commit real database credentials or JWT secrets.
+
+### Web
+
+Create:
+
+```text
+apps/web/.env
 ```
-Configure your values in `apps/web/.env`:
+
+Example:
+
 ```env
 VITE_API_URL=http://localhost:5000/api
 ```
 
-### 3. Mobile App Environment (`apps/mobile/.env`)
-Copy the sample file:
-```bash
-cp apps/mobile/.env.example apps/mobile/.env
-```
-Configure your values in `apps/mobile/.env`:
+Production:
+
 ```env
-# For Android Emulator:
+VITE_API_URL=https://tasko-api-bnko.onrender.com/api
+```
+
+### Mobile
+
+Create:
+
+```text
+apps/mobile/.env
+```
+
+For the production backend:
+
+```env
+EXPO_PUBLIC_API_URL=https://tasko-api-bnko.onrender.com/api
+```
+
+For an Android emulator using a locally running backend:
+
+```env
 EXPO_PUBLIC_API_URL=http://10.0.2.2:5000/api
+```
 
-# For iOS Simulator:
-# EXPO_PUBLIC_API_URL=http://localhost:5000/api
+For a physical device using the development backend:
 
-# For Physical Device (replace with your local network IP):
-# EXPO_PUBLIC_API_URL=http://192.168.1.X:5000/api
+```env
+EXPO_PUBLIC_API_URL=http://YOUR_LOCAL_IP:5000/api
 ```
 
 ---
 
 ## Database Setup
 
-1. **Install PostgreSQL** (if not already installed). Ensure the PostgreSQL server is running.
-2. **Create the Database**:
-   Open `psql` or pgAdmin and run:
-   ```sql
-   CREATE DATABASE taskflow;
-   ```
-3. **Update Connection String**:
-   Ensure `DATABASE_URL` in `server/.env` points to your database instance:
-   ```env
-   DATABASE_URL="postgresql://<username>:<password>@localhost:5432/taskflow"
-   ```
-4. **Run Prisma Migrations**:
-   ```bash
-   cd server
-   npx prisma migrate deploy
-   ```
-   The initial migration is included in `server/prisma/migrations/`. Keep all migration files in Git. Only run migrations after configuring a working `DATABASE_URL`; the sample URL is a placeholder. For an existing database that already contains tables, inspect and baseline its migration history before applying the initial migration.
-5. **Generate Prisma Client**:
-   ```bash
-   npx prisma generate
-   ```
+Navigate to the backend:
 
-*(Optional)* You can inspect your database graphically using Prisma Studio:
 ```bash
-npx prisma studio
+cd server
+npm install
 ```
+
+Generate Prisma Client:
+
+```bash
+npx prisma generate
+```
+
+Apply existing migrations:
+
+```bash
+npx prisma migrate deploy
+```
+
+The initial Prisma migration is stored in:
+
+```text
+server/prisma/migrations/
+```
+
+Tasko's production PostgreSQL database is hosted using Neon.
 
 ---
 
 ## Backend Setup
 
-Navigate to the `server` directory, install dependencies, run migrations, and start the development server:
-
 ```bash
 cd server
 npm install
 npx prisma generate
-npx prisma migrate deploy
 npm run dev
 ```
 
-The server will start with hot reloading at:
-**`http://localhost:5000`**
+Local backend:
 
-Health check: `GET http://localhost:5000/health` returns `{"status":"ok","message":"TaskFlow API is running"}`. API routes use the `/api` prefix. The health endpoint confirms that the HTTP server is running; it does not check the database connection.
+```text
+http://localhost:5000
+```
+
+API base:
+
+```text
+http://localhost:5000/api
+```
+
+Health endpoint:
+
+```text
+GET /health
+```
 
 ---
 
-## Web App Setup
+## Web Application Setup
 
-Open a new terminal window, navigate to `apps/web`, install dependencies, and launch Vite:
+Open another terminal:
 
 ```bash
 cd apps/web
@@ -360,15 +441,14 @@ npm run dev
 ```
 
 The web application runs locally at:
-**`http://localhost:5173`**
 
-Open your browser and navigate to `http://localhost:5173` to access the application.
+```text
+http://localhost:5173
+```
 
 ---
 
-## Mobile App Setup
-
-Open a new terminal window, navigate to `apps/mobile`, install dependencies, and launch Expo:
+## Mobile Application Setup
 
 ```bash
 cd apps/mobile
@@ -376,169 +456,293 @@ npm install
 npx expo start
 ```
 
-### Connecting to the Mobile App:
+For Expo Go, scan the generated QR code using your Android device.
 
-1. **Android Emulator**:
-   - Start an Android Virtual Device (AVD) from Android Studio.
-   - Press `a` in the Expo terminal.
-   - Ensure `EXPO_PUBLIC_API_URL` is set to `http://10.0.2.2:5000/api` (Android loopback address).
-2. **iOS Simulator** *(macOS only)*:
-   - Press `i` in the Expo terminal.
-   - Set `EXPO_PUBLIC_API_URL=http://localhost:5000/api`.
-3. **Physical Device (iOS / Android)**:
-   - Install **Expo Go** from the Google Play Store or Apple App Store.
-   - Connect your phone to the same Wi-Fi network as your computer.
-   - Find your computer's local IP address (`ipconfig` on Windows or `ifconfig` on macOS/Linux).
-   - Set `EXPO_PUBLIC_API_URL=http://<YOUR_LOCAL_IP>:5000/api` in `apps/mobile/.env`.
-   - Scan the QR code displayed in your terminal using the Expo Go app (Android) or Camera app (iOS).
+The physical device and local development machine should normally be on the same network when using a local backend.
 
 ---
 
-## Deployment
+## Android APK
 
-### 1. Database Deployment
-You can use managed PostgreSQL services like **Railway**, **Supabase**, or **Neon**:
-- Create a new PostgreSQL instance on [Railway](https://railway.app), [Supabase](https://supabase.com), or [Neon](https://neon.tech).
-- Copy the provided connection string (e.g. `postgresql://user:password@host:port/dbname?sslmode=require`).
+A standalone Android APK has been built using Expo EAS Build.
 
-### 2. Backend Deployment (Railway, Render, or Fly.io)
-#### Using Railway / Render:
-1. Link your GitHub repository.
-2. Set the root directory to `server`.
-3. Set the build command:
-   ```bash
-   npm install && npx prisma generate && npm run build
-   ```
-4. Set the start command:
-   ```bash
-   npx prisma migrate deploy && npm run start
-   ```
-5. Add environment variables:
-   - `DATABASE_URL`: Your hosted database connection string
-   - `JWT_SECRET`: A secure 64-character random string
-   - `JWT_EXPIRES_IN`: `7d`
-   - `PORT`: `5000` (or leave default for Railway/Render)
-   - `CORS_ORIGIN`: Your deployed web frontend URL
-   - `NODE_ENV`: `production`
-   - `TRUST_PROXY`: Keep `false` for direct access. Behind Render/Railway or another reverse proxy, configure only the actual trusted ingress IPs/CIDRs after checking the provider's network setup. Do not use `true` or a blanket hop count. See `server/.env.example`.
+Build / installation page:
 
-### 3. Web App Deployment (Vercel or Netlify)
-1. Link your GitHub repository to [Vercel](https://vercel.com) or [Netlify](https://netlify.com).
-2. Set the root directory to `apps/web`.
-3. Set the build command: `npm run build`
-4. Set the output directory: `dist`
-5. Configure environment variable:
-   - `VITE_API_URL`: `<deployed-backend-url>/api` (fill in after deployment)
-6. Deploy the project. Ensure client-side routing rewrites are configured (`vercel.json` or `_redirects`).
+https://expo.dev/accounts/yuvarajadithyareddy/projects/taskflow-mobile/builds/deb86518-2dad-40b0-881c-9cbea0daf7bd
+
+The APK connects directly to the production backend:
+
+```text
+https://tasko-api-bnko.onrender.com/api
+```
+
+### Building Another APK
+
+The repository contains an EAS `preview` build profile configured for an installable APK.
+
+Run:
+
+```bash
+cd apps/mobile
+npx eas-cli@latest build -p android --profile preview
+```
 
 ---
 
-## Mobile + Deployed Backend
+## Production Deployment
 
-To connect the mobile app to your production backend:
+### Database - Neon PostgreSQL
 
-1. Open `apps/mobile/.env`.
-2. Update `EXPO_PUBLIC_API_URL` to your production API URL:
-   ```env
-   EXPO_PUBLIC_API_URL=<deployed-backend-url>/api
-   ```
-3. Restart your Expo development server with cache cleared:
-   ```bash
-   npx expo start -c
-   ```
-4. You can build standalone APKs or iOS bundles using EAS Build:
-   ```bash
-   npm install -g eas-cli
-   eas build --platform android
-   ```
+The production database is hosted on Neon.
 
----
+The database connection string is stored only as a protected backend environment variable.
 
-## Security Implementation
+### Backend - Render
 
-TaskFlow adopts security-in-depth across each layer of the application:
+Production API:
 
-1. **bcrypt Password Hashing**: Passwords are cryptographically salted and hashed using bcrypt (10 rounds) prior to database persistence. Plain text passwords are never stored or logged.
-2. **JWT Authentication**: Stateless authentication utilizing JSON Web Tokens with configurable expiration (`7d`).
-3. **Auth Middleware**: Bearer token validation middleware intercepting protected endpoints; rejects expired, malformed, or missing tokens with `401 Unauthorized`.
-4. **Resource Ownership & Tenancy Isolation**: All project and task queries enforce explicit tenancy matching against the authenticated `userId`. Users cannot inspect, mutate, or delete other users' projects or tasks.
-5. **Zod Input Validation**: Strict schemas validate and sanitize request bodies, UUID route parameters, and query filters. Unknown body fields are rejected and Prisma writes explicitly select editable fields. Names are trimmed, emails are trimmed and lowercased, and registration requires a password of at least 8 characters. Task moves require ownership of the destination project.
-6. **Helmet Security Headers**: Comprehensive HTTP security header protection (X-Frame-Options, Content Security Policy, X-Content-Type-Options, etc.).
-7. **Rate Limiting**: `express-rate-limit` separately protects login and registration with 10 requests per 15 minutes per IP. Normal project and task routes do not share these auth limits. Reverse proxy trust must match the actual deployment topology; see `server/.env.example`.
-8. **CORS Configuration**: Restricts API calls to approved origins (`CORS_ORIGIN`).
-9. **Prisma ORM Protection**: Parameterized queries generated by Prisma inherently eliminate SQL injection vulnerabilities.
-10. **Environment Variable Safeguards**: All critical keys, secrets, and database credentials remain separated from code and excluded via `.gitignore`. Production startup requires a non-placeholder `JWT_SECRET` of at least 32 characters.
-11. **Centralized Error Handling**: Unified `AppError` class and global Express error-handling middleware ensure consistent JSON errors and conceal sensitive stack traces in production environments.
+```text
+https://tasko-api-bnko.onrender.com
+```
+
+Render configuration:
+
+```text
+Root Directory:
+server
+
+Build Command:
+npm ci --include=dev && npx prisma generate && npm run build
+
+Start Command:
+npm start
+
+Health Check:
+ /health
+```
+
+Important production environment variables include:
+
+```text
+DATABASE_URL
+JWT_SECRET
+JWT_EXPIRES_IN
+NODE_ENV
+CORS_ORIGIN
+```
+
+Secrets are configured directly in Render and are not stored in Git.
+
+### Web - Vercel
+
+Production application:
+
+```text
+https://tasko-murex.vercel.app
+```
+
+Vercel configuration:
+
+```text
+Root Directory:
+apps/web
+
+Framework:
+Vite
+```
+
+Production environment variable:
+
+```env
+VITE_API_URL=https://tasko-api-bnko.onrender.com/api
+```
+
+### Mobile - Expo EAS
+
+The Android application is built using Expo EAS Build.
+
+The preview profile creates an APK using the production backend.
+
+Android application ID:
+
+```text
+com.yuvarajadithya.tasko
+```
 
 ---
 
 ## API Documentation
 
-For complete endpoint documentation, request parameters, schemas, and example payloads, refer to:
-👉 **[docs/API.md](docs/API.md)**
+Complete REST API documentation is available here:
 
-For database entity relationships, constraints, and cascade delete behavior, refer to:
-👉 **[docs/ER-DIAGRAM.md](docs/ER-DIAGRAM.md)**
+[docs/API.md](docs/API.md)
+
+It documents authentication, projects, tasks, dashboard endpoints, validation rules, request bodies, and responses.
+
+---
+
+## Database / ER Diagram
+
+Database entity relationships are documented here:
+
+[docs/ER-DIAGRAM.md](docs/ER-DIAGRAM.md)
+
+The primary relationship structure is:
+
+```text
+User
+ |
+ | 1:N
+ v
+Project
+ |
+ | 1:N
+ v
+Task
+```
+
+A user owns multiple projects, and each project contains multiple tasks.
+
+Ownership checks ensure authenticated users can only access their own resources.
+
+---
+
+## Security
+
+Tasko implements multiple backend and client security measures.
+
+### Password Security
+
+Passwords are hashed with bcrypt before being stored.
+
+Plain-text passwords are never saved in the database.
+
+### JWT Authentication
+
+Protected routes require a valid JWT bearer token.
+
+Expired, missing, or invalid tokens return an authentication error.
+
+### Authorization
+
+Every project and task operation verifies ownership against the authenticated user.
+
+Users cannot access another user's projects or tasks.
+
+### Input Validation
+
+Zod schemas validate:
+
+- Authentication requests
+- Project data
+- Task data
+- UUID parameters
+- Query filters
+
+Unknown or invalid values are rejected before database operations.
+
+### Rate Limiting
+
+Authentication endpoints use request rate limiting to reduce brute-force login and registration attempts.
+
+### HTTP Security
+
+Helmet provides security-related HTTP response headers.
+
+### CORS
+
+Production CORS access is restricted to the deployed Tasko web application.
+
+### Secret Management
+
+Files such as:
+
+```text
+server/.env
+apps/web/.env
+apps/mobile/.env
+```
+
+are excluded from version control.
+
+Production database credentials and JWT secrets are stored using deployment-platform environment variables.
 
 ---
 
 ## Demo Credentials
 
-You can use the following credentials for testing or demonstration:
+A seeded demo account is available:
 
 ```text
-Email:    demo@taskflow.com
+Email: demo@taskflow.com
 Password: demo123456
 ```
 
-After configuring `DATABASE_URL` and applying migrations, run:
-
-```bash
-cd server
-npm run prisma:seed
-```
-
-The seed command creates this account together with demo projects and tasks. If `demo@taskflow.com` already exists, the seed leaves it unchanged, including its password.
+The same account can be used on the web and mobile applications to demonstrate cross-platform synchronization.
 
 ---
 
-## Screenshots
+## Cross-Platform Demonstration
 
-### Web Application
+A typical synchronization demonstration:
 
-#### Web Dashboard
-> *Placeholder for Web Dashboard screenshot showing analytics overview, active projects, and task counts.*  
+1. Sign in to Tasko on the deployed web application.
+2. Sign in to the Android application using the same account.
+3. Create a new task on mobile.
+4. Refresh the web application.
+5. Verify that the task appears.
+6. Change its status or mark it completed on the web.
+7. Pull-to-refresh the Android application.
+8. Verify that the same change appears on mobile.
 
-#### Web Projects Page
-> *Placeholder for Web Projects list view with search, status filters, and project cards.*  
-
-#### Web Tasks Page
-> *Placeholder for Web Tasks board showing task filtering, status badges, and task modal.*  
-
----
-
-### Mobile Application
-
-#### Mobile Dashboard
-> *Placeholder for Mobile Dashboard view displaying task statistics and quick navigation.*  
-
-#### Mobile Projects
-> *Placeholder for Mobile Projects screen displaying active project cards and status chips.*  
-
-#### Mobile Tasks
-> *Placeholder for Mobile Tasks screen showing filtering by project, priority badges, and status.*  
+This demonstrates that both clients use the same backend and PostgreSQL database.
 
 ---
 
-## Deployment URLs
+## Production URLs
 
 ```text
-Backend API: [Not deployed yet]
-Web App:     [Not deployed yet]
+Web:
+https://tasko-murex.vercel.app
+
+Backend:
+https://tasko-api-bnko.onrender.com
+
+Backend Health:
+https://tasko-api-bnko.onrender.com/health
+
+Android APK / EAS:
+https://expo.dev/accounts/yuvarajadithyareddy/projects/taskflow-mobile/builds/deb86518-2dad-40b0-881c-9cbea0daf7bd
+
+GitHub:
+https://github.com/YuvarajAdithya/Project-management-system
 ```
+
+---
+
+## Assessment Deliverables
+
+- [x] Responsive web application
+- [x] Android mobile application
+- [x] Shared REST backend
+- [x] Shared PostgreSQL database
+- [x] Authentication
+- [x] Project CRUD
+- [x] Task CRUD
+- [x] Dashboard statistics
+- [x] Search and filtering
+- [x] Cross-platform synchronization
+- [x] Secure token storage
+- [x] REST API documentation
+- [x] ER diagram
+- [x] Deployed web application
+- [x] Deployed backend
+- [x] Android APK build
+- [ ] Public GitHub repository
+- [ ] Demo recording
 
 ---
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is intended primarily as an internship technical assessment and portfolio project.

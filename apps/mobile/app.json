@@ -6,14 +6,26 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "scheme": "taskflow",
+    "android": {
+      "package": "com.yuvarajadithya.tasko"
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yuvarajadithya.tasko"
     },
     "plugins": [
       "expo-router",
       "expo-secure-store",
       "expo-asset",
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "f2832642-4bd0-4e26-8970-efa175cca78a"
+      }
+    }
   }
 }
