@@ -30,7 +30,7 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to TaskFlow</Text>
+      <Text style={styles.title}>Welcome to Tasko</Text>
       <ErrorNotice message={sessionMessage} />
       <View style={styles.form}>
         <Text style={styles.label}>Email</Text>

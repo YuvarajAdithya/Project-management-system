@@ -1,3 +1,6 @@
+import AuthLayout from '../components/AuthLayout';
+import ErrorMessage from '../components/ErrorMessage';
+import Icon from '../components/Icon';
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -30,49 +33,14 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">TaskFlow</h2>
-          <p className="mt-2 text-center text-sm text-gray-600">Sign in to your account</p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {(error || authError) && <div role="alert" className="text-red-500 text-sm text-center bg-red-50 p-2 rounded">{error || authError}</div>}
-          <div className="space-y-4">
-            <div>
-              <label className="label-text">Email address</label>
-              <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                className="input-field"
-                placeholder="you@example.com"
-              />
-            </div>
-            <div>
-              <label className="label-text">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="input-field"
-                placeholder="••••••••"
-              />
-            </div>
-          </div>
-          <div>
-            <button type="submit" className="w-full btn-primary flex justify-center" disabled={isLoading}>
-              {isLoading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </div>
-        </form>
-        <div className="text-center mt-4">
-          <Link to="/register" className="text-sm font-medium text-primary-600 hover:text-primary-500">
-            Don't have an account? Sign up
-          </Link>
-        </div>
-      </div>
-    </div>
+    <AuthLayout title="Welcome back." description="Pick up where you left off. Your workspace is ready." footer={<>New to Tasko? <Link to="/register" className="font-semibold text-ink hover:text-info-ink">Create an account <span aria-hidden="true">↗</span></Link></>}>
+      <form className="space-y-5" onSubmit={handleSubmit}>
+        <ErrorMessage message={error || authError} />
+        <div><label htmlFor="login-email" className="label-text">Email address</label><input id="login-email" type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} className="input-field auth-field" placeholder="you@example.com" /></div>
+        <div><label htmlFor="login-password" className="label-text">Password</label><input id="login-password" type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} className="input-field auth-field" placeholder="Enter your password" /></div>
+        <button type="submit" className="btn-primary min-h-12 w-full justify-between px-5" disabled={isLoading}>{isLoading ? 'Signing in...' : 'Sign in'}<Icon name="arrow" className="h-4 w-4" /></button>
+      </form>
+    </AuthLayout>
   );
 };
 

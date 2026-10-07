@@ -1,5 +1,5 @@
 const ErrorMessage = ({ message }: { message: string }) => message ? (
-  <div role="alert" className="text-red-500 text-sm bg-red-50 p-3 rounded mb-4">
+  <div role="alert" className="text-danger-ink text-sm leading-6 bg-danger-subtle border border-danger/30 p-4 rounded-md mb-4">
     {message}
   </div>
 ) : null;

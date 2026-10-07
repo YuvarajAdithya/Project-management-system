@@ -1,106 +1,59 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../lib/axios';
-import { Project } from '../types';
+import type { Project, Task } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmptyState from '../components/EmptyState';
-import StatusBadge from '../components/StatusBadge';
 import ErrorMessage from '../components/ErrorMessage';
+import PageHeader from '../components/PageHeader';
+import ProjectCard from '../components/ProjectCard';
+import Icon from '../components/Icon';
 import { getApiErrorMessage } from '../lib/apiError';
 
-const ProjectsPage: React.FC = () => {
+export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [tasks, setTasks] = useState<Task[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [taskError, setTaskError] = useState('');
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
-  const navigate = useNavigate();
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    const fetchProjects = async () => {
-      setIsLoading(true);
-      setError('');
+    const controller = new AbortController();
+    setTaskError('');
+    api.get<Task[]>('/tasks', { signal: controller.signal }).then(res => setTasks(res.data)).catch(error => {
+      if (!controller.signal.aborted) { setTasks(null); setTaskError(getApiErrorMessage(error, 'Task progress could not be loaded.')); }
+    });
+    return () => controller.abort();
+  }, [attempt]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setIsLoading(true);
+    setError('');
+    const timeoutId = setTimeout(async () => {
       try {
-        const res = await api.get('/projects', { params: { search, status } });
-        setProjects(res.data);
+        const res = await api.get<Project[]>('/projects', { params: { search, status }, signal: controller.signal });
+        if (!controller.signal.aborted) setProjects(res.data);
       } catch (error) {
-        setError(getApiErrorMessage(error, 'Failed to load projects. Please try again.'));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    const timeoutId = setTimeout(fetchProjects, 300);
-    return () => clearTimeout(timeoutId);
-  }, [search, status]);
+        if (!controller.signal.aborted) { setProjects([]); setError(getApiErrorMessage(error, 'Failed to load projects. Please try again.')); }
+      } finally { if (!controller.signal.aborted) setIsLoading(false); }
+    }, 300);
+    return () => { clearTimeout(timeoutId); controller.abort(); };
+  }, [search, status, attempt]);
 
-  return (
-    <div>
-      <div className="sm:flex sm:items-center sm:justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
-        <div className="mt-4 sm:mt-0">
-          <Link to="/projects/new" className="btn-primary">
-            New Project
-          </Link>
-        </div>
-      </div>
-
-      <div className="mb-6 flex flex-col sm:flex-row gap-4">
-        <input
-          type="text"
-          placeholder="Search projects..."
-          className="input-field max-w-sm"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <select
-          className="input-field max-w-xs"
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-        >
-          <option value="">All Statuses</option>
-          <option value="NOT_STARTED">Not Started</option>
-          <option value="IN_PROGRESS">In Progress</option>
-          <option value="COMPLETED">Completed</option>
-        </select>
-      </div>
-
-      <ErrorMessage message={error} />
-      {isLoading ? (
-        <LoadingSpinner />
-      ) : projects.length === 0 && !error ? (
-        <EmptyState
-          title="No projects found"
-          description="Get started by creating a new project."
-          actionText="Create Project"
-          onAction={() => navigate('/projects/new')}
-        />
-      ) : (
-        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
-            <div
-              key={project.id}
-              onClick={() => navigate(`/projects/${project.id}`)}
-              className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer flex flex-col"
-            >
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="text-lg font-medium text-gray-900 truncate pr-2">{project.name}</h3>
-                <StatusBadge status={project.status} />
-              </div>
-              <p className="text-sm text-gray-500 mb-4 line-clamp-2 flex-1">
-                {project.description || 'No description provided.'}
-              </p>
-              <div className="mt-auto pt-4 border-t border-gray-100 text-xs text-gray-500 flex justify-between">
-                <span>{new Date(project.createdAt).toLocaleDateString()}</span>
-                {project.endDate && (
-                  <span>Due: {new Date(project.endDate).toLocaleDateString()}</span>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+  return <div>
+    <PageHeader eyebrow="Space for your ideas" title="Projects" description="From the first step to the finishing touch. Keep it all together." action={<Link to="/projects/new" className="btn-primary"><Icon name="plus" className="h-4 w-4" />New Project</Link>} />
+    <div className="filter-bar">
+      <div className="search-field"><Icon name="search" /><label htmlFor="project-search" className="sr-only">Search projects</label><input id="project-search" type="search" className="input-field" placeholder="Find a project..." value={search} onChange={e => setSearch(e.target.value)} /></div>
+      <div className="flex w-full items-center gap-3 sm:w-auto"><label htmlFor="project-status" className="shrink-0 text-xs font-medium text-secondary">Status</label><select id="project-status" className="input-field mt-0 min-w-40" value={status} onChange={e => setStatus(e.target.value)}><option value="">All statuses</option><option value="NOT_STARTED">Not started</option><option value="IN_PROGRESS">In progress</option><option value="COMPLETED">Completed</option></select></div>
+      {(search || status) && <button className="text-xs font-semibold text-info-ink hover:underline" onClick={() => { setSearch(''); setStatus(''); }}>Clear filters</button>}
     </div>
-  );
-};
-
-export default ProjectsPage;
+    {(error || taskError) && <div className="mb-6"><ErrorMessage message={error || taskError} /><button className="btn-secondary" onClick={() => setAttempt(attempt + 1)}>Retry</button></div>}
+    {isLoading ? <LoadingSpinner /> : !error && <><div className="mb-4 flex items-center justify-between"><p className="text-xs text-secondary" role="status">{projects.length} {projects.length === 1 ? 'project' : 'projects'}{search || status ? ' found' : ' in your workspace'}</p><span className="hidden text-xs text-secondary sm:inline">A clear view of what’s moving forward</span></div>
+      {projects.length === 0 ? <EmptyState title={search || status ? 'No projects match just yet' : 'Make space for something new'} description={search || status ? 'Try another name or clear your filters.' : 'Start your first project and turn your next idea into a plan.'} /> : <div className="grid auto-rows-fr gap-5 lg:grid-cols-2 2xl:grid-cols-3">{projects.map(project => <ProjectCard key={project.id} project={project} tasks={tasks} />)}</div>}
+    </>}
+  </div>;
+}

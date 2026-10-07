@@ -1,84 +1,52 @@
-import React, { useState } from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import Brand from './Brand';
+import Icon, { type IconName } from './Icon';
 
-const Layout: React.FC = () => {
+const navigation: { name: string; path: string; icon: IconName }[] = [
+  { name: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
+  { name: 'Projects', path: '/projects', icon: 'projects' },
+  { name: 'Tasks', path: '/tasks', icon: 'tasks' },
+];
+
+export default function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const area = navigation.find(item => location.pathname.startsWith(item.path))?.name || 'Workspace';
+  const initials = user?.fullName.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase() || 'T';
+  const handleLogout = () => { logout(); navigate('/login'); };
+  const links = navigation.map(item => <NavLink key={item.path} to={item.path} onClick={() => setMenuOpen(false)} className={({ isActive }) => `nav-item ${isActive ? 'nav-item-active' : ''}`}><Icon name={item.icon} /><span>{item.name}</span></NavLink>);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
-  const navItems = [
-    { name: 'Dashboard', path: '/dashboard' },
-    { name: 'Projects', path: '/projects' },
-    { name: 'Tasks', path: '/tasks' },
-  ];
-
-  return (
-    <div className="flex h-screen bg-gray-50 flex-col md:flex-row">
-      {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between bg-white border-b border-gray-200 px-4 py-3">
-        <span className="text-xl font-bold text-primary-600">TaskFlow</span>
-        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-gray-500 hover:text-gray-700">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            {isMobileMenuOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            )}
-          </svg>
-        </button>
+  return <div className="app-shell">
+    <a href="#main-content" className="skip-link">Skip to content</a>
+    <aside className="app-sidebar">
+      <div className="px-3 pb-12 pt-2"><Brand /></div>
+      <p className="eyebrow px-4 pb-4">Workspace</p>
+      <nav aria-label="Main navigation" className="space-y-2">{links}</nav>
+      <div className="mt-auto border-t border-line pt-5">
+        <div className="flex min-w-0 items-center gap-3 px-3 pb-5"><span className="avatar">{initials}</span><div className="min-w-0"><p className="truncate text-sm font-semibold">{user?.fullName}</p><p className="mt-1 truncate text-xs text-secondary">{user?.email}</p></div></div>
+        <button onClick={handleLogout} className="nav-item w-full"><Icon name="logout" />Logout</button>
       </div>
-
-      {/* Sidebar */}
-      <div className={`${isMobileMenuOpen ? 'block' : 'hidden'} md:flex flex-col w-full md:w-64 bg-white border-r border-gray-200`}>
-        <div className="hidden md:flex items-center justify-center h-16 border-b border-gray-200">
-          <span className="text-2xl font-bold text-primary-600">TaskFlow</span>
+    </aside>
+    <div className="flex min-w-0 flex-1 flex-col">
+      <header className="app-topbar">
+        <div className="flex min-w-0 items-center gap-3">
+          <button className="btn-icon md:hidden" aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="mobile-navigation" onClick={() => setMenuOpen(!menuOpen)}><Icon name={menuOpen ? 'close' : 'menu'} /></button>
+          <span className="md:hidden"><Brand /></span><span className="hidden text-sm text-secondary md:inline">Workspace</span><span className="hidden text-line-strong md:inline" aria-hidden="true">/</span><span className="hidden text-sm font-medium md:inline">{area}</span>
         </div>
-        <nav className="flex-1 px-4 py-4 space-y-1">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.name}
-              to={item.path}
-              className={({ isActive }) =>
-                `block px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive ? 'bg-primary-50 text-primary-700' : 'text-gray-700 hover:bg-gray-100'
-                }`
-              }
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              {item.name}
-            </NavLink>
-          ))}
-        </nav>
-        <div className="p-4 border-t border-gray-200">
-          <div className="flex items-center mb-4">
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">{user?.fullName}</p>
-              <p className="text-xs text-gray-500 truncate">{user?.email}</p>
-            </div>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="w-full btn-secondary text-sm"
-          >
-            Logout
-          </button>
+        <div className="flex items-center gap-5">
+          <span className="hidden items-center gap-2 text-xs text-secondary lg:inline-flex"><Icon name="calendar" className="h-4 w-4" />{new Intl.DateTimeFormat('en', { weekday: 'short', month: 'short', day: 'numeric' }).format(new Date())}</span>
+          <details className="account-menu group">
+            <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full" aria-label="Account menu"><span className="avatar h-9 w-9">{initials}</span><span className="hidden text-sm font-medium sm:inline">{user?.fullName.split(' ')[0]}</span></summary>
+            <div className="account-popover"><p className="break-words text-sm font-semibold">{user?.fullName}</p><p className="mt-1 break-all text-xs text-secondary">{user?.email}</p><button onClick={handleLogout} className="btn-secondary mt-4 w-full"><Icon name="logout" className="h-4 w-4" />Logout</button></div>
+          </details>
         </div>
-      </div>
-
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-8">
-        <div className="max-w-7xl mx-auto">
-          <Outlet />
-        </div>
-      </main>
+      </header>
+      {menuOpen && <nav id="mobile-navigation" aria-label="Mobile navigation" className="border-b border-line bg-surface px-5 py-4 md:hidden"><div className="mb-4"><Brand /></div><div className="space-y-2">{links}</div></nav>}
+      <main id="main-content" tabIndex={-1} className="min-h-0 flex-1 overflow-y-auto px-5 py-7 sm:px-8 lg:px-10 lg:py-9"><div className="mx-auto w-full max-w-[1400px]"><Outlet /></div></main>
     </div>
-  );
-};
-
-export default Layout;
+  </div>;
+}
