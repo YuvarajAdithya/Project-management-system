@@ -1,3 +1,6 @@
+import AuthLayout from '../components/AuthLayout';
+import ErrorMessage from '../components/ErrorMessage';
+import Icon from '../components/Icon';
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -40,45 +43,16 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">TaskFlow</h2>
-          <p className="mt-2 text-center text-sm text-gray-600">Create a new account</p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && <div role="alert" className="text-red-500 text-sm text-center bg-red-50 p-2 rounded">{error}</div>}
-          <div className="space-y-4">
-            <div>
-              <label className="label-text">Full Name</label>
-              <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} className="input-field" placeholder="John Doe" />
-            </div>
-            <div>
-              <label className="label-text">Email address</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="input-field" placeholder="you@example.com" />
-            </div>
-            <div>
-              <label className="label-text">Password</label>
-              <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="input-field" placeholder="••••••••" />
-            </div>
-            <div>
-              <label className="label-text">Confirm Password</label>
-              <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="input-field" placeholder="••••••••" />
-            </div>
-          </div>
-          <div>
-            <button type="submit" className="w-full btn-primary flex justify-center" disabled={isLoading}>
-              {isLoading ? 'Creating account...' : 'Sign up'}
-            </button>
-          </div>
-        </form>
-        <div className="text-center mt-4">
-          <Link to="/login" className="text-sm font-medium text-primary-600 hover:text-primary-500">
-            Already have an account? Sign in
-          </Link>
-        </div>
-      </div>
-    </div>
+    <AuthLayout title="Start with a clear mind." description="Create your account and make space for what comes next." footer={<>Already have an account? <Link to="/login" className="font-semibold text-ink hover:text-info-ink">Sign in <span aria-hidden="true">↗</span></Link></>}>
+      <form className="space-y-4" onSubmit={handleSubmit}>
+        <ErrorMessage message={error} />
+        <div><label htmlFor="register-name" className="label-text">Full name</label><input id="register-name" type="text" autoComplete="name" value={fullName} onChange={e => setFullName(e.target.value)} className="input-field auth-field" placeholder="Your full name" /></div>
+        <div><label htmlFor="register-email" className="label-text">Email address</label><input id="register-email" type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} className="input-field auth-field" placeholder="you@example.com" /></div>
+        <div><label htmlFor="register-password" className="label-text">Password</label><input id="register-password" type="password" autoComplete="new-password" aria-describedby="password-hint" value={password} onChange={e => setPassword(e.target.value)} className="input-field auth-field" placeholder="Create a password" /><p id="password-hint" className="mt-2 text-xs text-secondary">Use at least 8 characters.</p></div>
+        <div><label htmlFor="register-confirm" className="label-text">Confirm password</label><input id="register-confirm" type="password" autoComplete="new-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="input-field auth-field" placeholder="Repeat your password" /></div>
+        <button type="submit" className="btn-primary min-h-12 w-full justify-between px-5" disabled={isLoading}>{isLoading ? 'Creating account...' : 'Create account'}<Icon name="arrow" className="h-4 w-4" /></button>
+      </form>
+    </AuthLayout>
   );
 };
 

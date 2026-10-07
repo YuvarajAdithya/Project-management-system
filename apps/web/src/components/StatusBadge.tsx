@@ -8,25 +8,25 @@ interface StatusBadgeProps {
 
 const getStyles = (status?: string) => {
   switch (status) {
-    case 'NOT_STARTED': return 'bg-gray-100 text-gray-800';
-    case 'IN_PROGRESS': return 'bg-blue-100 text-blue-800';
-    case 'COMPLETED': return 'bg-green-100 text-green-800';
-    case 'PENDING': return 'bg-yellow-100 text-yellow-800';
-    case 'LOW': return 'bg-gray-100 text-gray-800';
-    case 'MEDIUM': return 'bg-orange-100 text-orange-800';
-    case 'HIGH': return 'bg-red-100 text-red-800';
-    default: return 'bg-gray-100 text-gray-800';
+    case 'NOT_STARTED': return 'badge-neutral';
+    case 'IN_PROGRESS': return 'badge-info';
+    case 'COMPLETED': return 'badge-success';
+    case 'PENDING': return 'badge-warning';
+    case 'LOW': return 'badge-neutral';
+    case 'MEDIUM': return 'badge-warning';
+    case 'HIGH': return 'badge-danger';
+    default: return 'badge-neutral';
   }
 };
 
 const formatText = (text: string) => {
-  return text.replace(/_/g, ' ');
+  return text.toLowerCase().replace(/_/g, ' ');
 };
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({ status, text }) => {
   const label = text || (status ? formatText(status) : '');
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStyles(status)}`}>
+    <span className={`badge capitalize ${getStyles(status)}`}>
       {label}
     </span>
   );
