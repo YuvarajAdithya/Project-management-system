@@ -1,0 +1,2 @@
+# Keep migrations in source control for prisma migrate deploy.
+provider = "postgresql"
