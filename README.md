@@ -738,7 +738,7 @@ https://github.com/YuvarajAdithya/Project-management-system
 - [x] Deployed web application
 - [x] Deployed backend
 - [x] Android APK build
-- [ ] Public GitHub repository
+- [x] Public GitHub repository
 - [ ] Demo recording
 
 ---
